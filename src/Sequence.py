@@ -47,3 +47,18 @@ class Sequence:
         return 2 * (count[Nucleotide.A] + count[Nucleotide.T]) + 4 * (
             count[Nucleotide.G] + count[Nucleotide.C]
         )
+
+    def calculate_longest_repeat(self) -> int:
+        longest_repeat = 1
+        current_repeat = 1
+
+        for i in range(1, Sequence.LENGTH):
+            if self.nucleotides[i] is self.nucleotides[i-1]:
+                current_repeat += 1
+            else:
+                current_repeat = 1
+
+            if current_repeat > longest_repeat:
+                longest_repeat = current_repeat
+
+        return longest_repeat
