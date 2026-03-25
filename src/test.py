@@ -1,5 +1,5 @@
 import numpy as np
-import hairpin_dimer_scores
+from RandomOptimizer import RandomOptimizer
 from Sequence import Sequence
 from CostCalculator import CostCalculator
 
@@ -21,9 +21,12 @@ for sequence in sequences:
     print(f"GC Content: {sequence.calculate_GC_content()}")
     print(f"Melting temperature: {sequence.calculate_melting_temperature()}")
     print(f"Longest repeat: {sequence.calculate_longest_repeat()}")
-    print(f"Hairspin score: {sequence.calculate_hairpin_score()}")
+    print(f"Hairpin score: {sequence.calculate_hairpin_score()}")
     cost = CostCalculator.calculate_total_weighted_cost(sequence, target_melting_temperature, target_gc_content)
     print(f"Cost: {cost}")
     print("----------------")
 
 
+print("Optimization:")
+result = RandomOptimizer.optimize(sequences[0], 20, rng)
+print(result.cost_history)
