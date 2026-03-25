@@ -2,19 +2,6 @@ def reverse_complement(seq):
     comp = {'A': 'T', 'T': 'A', 'G': 'C', 'C': 'G'}
     return ''.join(comp[b] for b in reversed(seq))
 
-def hairpin_score(primer, min_stem=3, min_loop=3):
-    score = 0
-    n = len(primer)
-    for stem_len in range(min_stem, n // 2 + 1):
-        for i in range(n - stem_len + 1):
-            substr = primer[i:i + stem_len]
-            rc = reverse_complement(substr)
-            # look for rc starting at least (stem_len + min_loop) away
-            for j in range(i + stem_len + min_loop, n - stem_len + 1):
-                if primer[j:j + stem_len] == rc:
-                    score = max(score, stem_len)
-    return score
-
 def dimer_score(p1, p2, min_run=3, end_zone=5):
     rc2 = reverse_complement(p2)
     n1, n2 = len(p1), len(rc2)

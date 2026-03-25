@@ -53,7 +53,7 @@ class Sequence:
         current_repeat = 1
 
         for i in range(1, Sequence.LENGTH):
-            if self.nucleotides[i] is self.nucleotides[i-1]:
+            if self.nucleotides[i] is self.nucleotides[i - 1]:
                 current_repeat += 1
             else:
                 current_repeat = 1
@@ -62,3 +62,31 @@ class Sequence:
                 longest_repeat = current_repeat
 
         return longest_repeat
+
+    def calculate_hairpin_score(self, min_stem: int = 3, min_loop: int = 3) -> int:
+        best_score = 0
+
+        for stem_len in range(min_stem, Sequence.LENGTH // 2 + 1):
+            for i in range(Sequence.LENGTH - stem_len + 1):
+                left_stem = self.nucleotides[i : i + stem_len]
+
+                for j in range(i + stem_len + min_loop, Sequence.LENGTH - stem_len + 1):
+                    right_stem = self.nucleotides[j : j + stem_len]
+
+                    if Sequence.is_reverse_complement(left_stem, right_stem):
+                        best_score = max(best_score, stem_len)
+
+        return best_score
+
+    @staticmethod
+    def is_reverse_complement(seq_1: list[Nucleotide], seq_2: list[Nucleotide]):
+        if len(seq_1) != len(seq_2):
+            return False
+
+        seq_length = len(seq_1)
+
+        for i in range(seq_length):
+            if not seq_1[i].complement != seq_2[seq_length - 1 - i]:
+                return False
+
+        return True
