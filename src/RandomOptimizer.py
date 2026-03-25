@@ -25,7 +25,7 @@ class RandomOptimizer(Optimizer):
                 new_sequence, Optimizer.TARGET_TEMPERATURE, Optimizer.TARGET_GC_CONTENT
             )
 
-            if new_cost < optimizationResult.best_cost:
+            if new_cost <= optimizationResult.best_cost:
                 optimizationResult.best_cost = new_cost
                 optimizationResult.best_sequence = new_sequence
 
