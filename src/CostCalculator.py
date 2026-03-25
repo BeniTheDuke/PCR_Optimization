@@ -5,6 +5,7 @@ class CostCalculator:
     WEIGHT_TEMPERATURE = 1
     WEIGHT_GC_CONTENT = 10
     WEIGHT_REPEATS = 1
+    WEIGHT_HAIRPIN = 1
 
     @staticmethod
     def calculate_total_weighted_cost(
@@ -21,8 +22,11 @@ class CostCalculator:
         cost_repeats = (
             CostCalculator.WEIGHT_REPEATS * sequence.calculate_longest_repeat()
         )
+        cost_hairpin = (
+                CostCalculator.WEIGHT_HAIRPIN * sequence.calculate_hairpin_score()
+                )
 
-        return cost_temperature + cost_gc_content + cost_repeats
+        return cost_temperature + cost_gc_content + cost_repeats + cost_hairpin
 
     @staticmethod
     def calculate_temperature_cost(sequence: Sequence, target_melting_temperature) -> float:

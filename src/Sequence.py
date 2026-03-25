@@ -23,6 +23,13 @@ class Sequence:
     def __str__(self):
         return "".join(n.name for n in self.nucleotides)
 
+    def print(self):
+        print(f"Sequence: {self.__str__()}")
+        print(f"GC Content: {self.calculate_GC_content()}")
+        print(f"Melting temperature: {self.calculate_melting_temperature()}")
+        print(f"Longest repeat: {self.calculate_longest_repeat()}")
+        print(f"Hairpin score: {self.calculate_hairpin_score()}")
+
     def get_nucleotides_count(self) -> dict[Nucleotide, int]:
         dict = {
             Nucleotide.C: 0,
