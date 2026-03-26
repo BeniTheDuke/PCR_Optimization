@@ -3,6 +3,6 @@ from Sequence import Sequence
 
 @dataclass
 class OptimizationResult:
-    best_sequence: Sequence
+    best_sequences: tuple[Sequence, Sequence] # forward, backward
     best_cost: float
     cost_history: list[float] 
