@@ -9,6 +9,8 @@ class CostCalculator:
     WEIGHT_REPEATS = 10
     WEIGHT_HAIRPIN = 5
 
+    REPEAT_THRESHOLD = 3
+
     @staticmethod
     def calculate_total_cost(
             sequences: tuple[Sequence, Sequence]
@@ -56,10 +58,17 @@ class CostCalculator:
 
     @staticmethod
     def calculate_repeats_cost(sequences: tuple[Sequence, Sequence]) -> float:
-        return CostCalculator.WEIGHT_REPEATS * (
-            sequences[0].calculate_longest_repeat()
-            + sequences[1].calculate_longest_repeat()
-        )
+
+        longest_repeat_forward = sequences[0].calculate_longest_repeat()
+        longest_repeat_backward = sequences[1].calculate_longest_repeat()
+
+        cost = 0
+        if longest_repeat_forward > CostCalculator.REPEAT_THRESHOLD:
+            cost += longest_repeat_forward
+        if longest_repeat_backward > CostCalculator.REPEAT_THRESHOLD:
+            cost += longest_repeat_backward
+
+        return CostCalculator.WEIGHT_REPEATS * cost
 
     @staticmethod
     def calculate_hairpin_cost(sequences: tuple[Sequence, Sequence]) -> float:
