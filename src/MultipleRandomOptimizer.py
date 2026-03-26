@@ -16,7 +16,8 @@ class MultipleRandomOptimizer(Optimizer):
         initial_sequences: tuple[Sequence, Sequence], max_steps: int, rng: Generator
     ) -> OptimizationResult:
 
-        optimizationResult = OptimizationResult(initial_sequences, sys.maxsize, [])
+        initial_score = CostCalculator.calculate_total_cost(initial_sequences)
+        optimizationResult = OptimizationResult(initial_sequences, initial_score, [])
 
         for _ in range(max_steps):
             new_sequences = (
@@ -38,6 +39,6 @@ class MultipleRandomOptimizer(Optimizer):
                 optimizationResult.best_cost = new_cost
                 optimizationResult.best_sequences = new_sequences
 
-            optimizationResult.cost_history.append(optimizationResult.best_cost)
+            optimizationResult.cost_history.append(new_cost)
 
         return optimizationResult

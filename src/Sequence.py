@@ -88,7 +88,7 @@ class Sequence:
         seq_length = len(seq_1)
 
         for i in range(seq_length):
-            if not seq_1[i].complement != seq_2[seq_length - 1 - i]:
+            if seq_1[i].complement() != seq_2[seq_length - 1 - i]:
                 return False
 
         return True
