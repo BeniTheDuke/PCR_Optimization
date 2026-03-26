@@ -5,9 +5,9 @@ from Sequence import Sequence
 class CostCalculator:
     WEIGHT_TEMPERATURE_TO_TARGET = 1.0
     WEIGHT_TEMPERATURE_BETWEEN_SEQUENCES = 2.0
-    WEIGHT_GC_CONTENT = 10
-    WEIGHT_REPEATS = 1
-    WEIGHT_HAIRPIN = 1
+    WEIGHT_GC_CONTENT = 50
+    WEIGHT_REPEATS = 10
+    WEIGHT_HAIRPIN = 5
 
     @staticmethod
     def calculate_total_cost(
