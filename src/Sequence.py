@@ -14,7 +14,7 @@ class Sequence:
         self.nucleotides = nucleotides
 
     @staticmethod
-    def _random_sequence(rng: Generator) -> list[Nucleotide]:
+    def random_sequence(rng: Generator) -> list[Nucleotide]:
         nucleotides: list[Nucleotide] = []
         for _ in range(Sequence.LENGTH):
             value = rng.integers(0, 4)

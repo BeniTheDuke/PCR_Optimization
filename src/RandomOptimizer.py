@@ -1,5 +1,4 @@
 from numpy.random import Generator
-import sys
 
 from CostCalculator import CostCalculator
 from OptimizationResult import OptimizationResult

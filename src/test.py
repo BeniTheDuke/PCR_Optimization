@@ -4,14 +4,15 @@ from Optimizer import Optimizer
 from RandomOptimizer import RandomOptimizer
 from Sequence import Sequence
 from CostCalculator import CostCalculator
+from hairpin_dimer_scores import dimer_score
 
 SEED = 42
 
 
 rng = np.random.default_rng(SEED)
 
-sequence_1 = Sequence(Sequence._random_sequence(rng))
-sequence_2 = Sequence(Sequence._random_sequence(rng))
+sequence_1 = Sequence(Sequence.random_sequence(rng))
+sequence_2 = Sequence(Sequence.random_sequence(rng))
 
 
 print("Initial Sequences")

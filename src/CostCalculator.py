@@ -3,30 +3,29 @@ from Sequence import Sequence
 
 
 class CostCalculator:
-    WEIGHT_TEMPERATURE_TO_TARGET = 1.0
-    WEIGHT_TEMPERATURE_BETWEEN_SEQUENCES = 2.0
+    WEIGHT_TEMPERATURE_TO_TARGET = 1
+    WEIGHT_TEMPERATURE_BETWEEN_SEQUENCES = 2
     WEIGHT_GC_CONTENT = 50
     WEIGHT_REPEATS = 10
     WEIGHT_HAIRPIN = 5
+    WEIGHT_DIMER = 8
 
     REPEAT_THRESHOLD = 3
+    END_ZONE = 5
 
     @staticmethod
-    def calculate_total_cost(
-            sequences: tuple[Sequence, Sequence]
-    ) -> float:
+    def calculate_total_cost(sequences: tuple[Sequence, Sequence]) -> float:
         cost = 0
         cost += CostCalculator.calculate_temperature_cost(sequences)
         cost += CostCalculator.calculate_gc_content_cost(sequences)
         cost += CostCalculator.calculate_repeats_cost(sequences)
         cost += CostCalculator.calculate_hairpin_cost(sequences)
+        cost += CostCalculator.calculate_dimer_score(sequences)
 
         return cost
 
     @staticmethod
-    def calculate_temperature_cost(
-            sequences: tuple[Sequence, Sequence]
-    ) -> float:
+    def calculate_temperature_cost(sequences: tuple[Sequence, Sequence]) -> float:
         melting_temperature_sequence_1 = sequences[0].calculate_melting_temperature()
         melting_temperature_sequence_2 = sequences[1].calculate_melting_temperature()
 
@@ -73,5 +72,35 @@ class CostCalculator:
     @staticmethod
     def calculate_hairpin_cost(sequences: tuple[Sequence, Sequence]) -> float:
         return CostCalculator.WEIGHT_HAIRPIN * (
-            sequences[0].calculate_hairpin_score() + sequences[1].calculate_hairpin_score()
+            sequences[0].calculate_hairpin_score()
+            + sequences[1].calculate_hairpin_score()
         )
+
+    @staticmethod
+    def calculate_dimer_score(sequences: tuple[Sequence, Sequence]) -> float:
+        score = 0
+        for offset in range(-Sequence.LENGTH + 1, Sequence.LENGTH):
+            run = 0
+
+            for i in range(
+                max(0, offset), min(Sequence.LENGTH, offset + Sequence.LENGTH)
+            ):
+                j = (Sequence.LENGTH - 1) - (i - offset)
+
+                if (
+                    sequences[0].nucleotides[i]
+                    == sequences[1].nucleotides[j].complement()
+                ):
+                    run += 1
+                    if (
+                        i >= Sequence.LENGTH - CostCalculator.END_ZONE
+                        or j < CostCalculator.END_ZONE
+                    ):
+                        score = max(score, run)
+                else:
+                    run = 0
+
+
+        return CostCalculator.WEIGHT_DIMER * score
+
+
