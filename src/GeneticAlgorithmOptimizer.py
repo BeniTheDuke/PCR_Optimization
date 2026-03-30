@@ -1,6 +1,5 @@
 from numpy.random import Generator
 import numpy as np
-import matplotlib.pyplot as plt
 
 from CostCalculator import CostCalculator
 from OptimizationResult import OptimizationResult
@@ -13,8 +12,8 @@ class GeneticAlgorithmOptimizer(Optimizer):
     @staticmethod
     def random_primer_pair(
         rng:Generator):
-        sequence_1 = Sequence(Sequence._random_sequence(rng))
-        sequence_2 = Sequence(Sequence._random_sequence(rng))
+        sequence_1 = Sequence(Sequence.random_sequence(rng))
+        sequence_2 = Sequence(Sequence.random_sequence(rng))
 
         return sequence_1, sequence_2
 
