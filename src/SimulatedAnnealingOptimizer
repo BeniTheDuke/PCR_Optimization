@@ -1,0 +1,64 @@
+import math
+import sys
+from numpy.random import Generator
+
+from CostCalculator import CostCalculator
+from OptimizationResult import OptimizationResult
+from Optimizer import Optimizer
+from Sequence import Sequence
+from Nucleotide import Nucleotide
+
+
+class SimulatedAnnealingOptimizer(Optimizer):
+    INITIAL_TEMPERATURE = 100.0
+    COOLING_RATE = 0.995
+    MIN_TEMPERATURE = 0.01
+
+    @staticmethod
+    def optimize(
+        initial_sequence: Sequence, max_steps: int, rng: Generator
+    ) -> OptimizationResult:
+        current_sequence = initial_sequence
+        current_cost = CostCalculator.calculate_total_weighted_cost(
+            current_sequence, Optimizer.TARGET_TEMPERATURE, Optimizer.TARGET_GC_CONTENT
+        )
+
+        best_sequence = current_sequence
+        best_cost = current_cost
+        cost_history = []
+
+        temperature = SimulatedAnnealingOptimizer.INITIAL_TEMPERATURE
+
+        for _ in range(max_steps):
+            # mutate one random position
+            nucleotides_copy = current_sequence.nucleotides.copy()
+            change_position = rng.integers(0, Sequence.LENGTH)
+            new_nucleotide = Nucleotide(rng.integers(0, len(Nucleotide)))
+            nucleotides_copy[change_position] = new_nucleotide
+
+            new_sequence = Sequence(nucleotides_copy)
+            new_cost = CostCalculator.calculate_total_weighted_cost(
+                new_sequence, Optimizer.TARGET_TEMPERATURE, Optimizer.TARGET_GC_CONTENT
+            )
+
+            delta = new_cost - current_cost
+
+            # accept if better, or probabilistically if worse
+            if delta <= 0 or rng.random() < math.exp(-delta / temperature):
+                current_sequence = new_sequence
+                current_cost = new_cost
+
+            # track global best
+            if current_cost < best_cost:
+                best_cost = current_cost
+                best_sequence = current_sequence
+
+            cost_history.append(best_cost)
+
+            # cool down
+            temperature = max(
+                SimulatedAnnealingOptimizer.MIN_TEMPERATURE,
+                temperature * SimulatedAnnealingOptimizer.COOLING_RATE
+            )
+
+        return OptimizationResult(best_sequence, best_cost, cost_history)
