@@ -1,0 +1,219 @@
+*Status: vibe-coded*
+
+---
+title: "PCR Primer Optimization: Algorithm Comparison"
+format:
+  html:
+    code-fold: true
+    toc: true
+  pdf:
+    documentclass: article
+    toc: false
+    execute: 
+      echo: false
+jupyter: python3
+---
+
+
+```{python}
+#| include: false
+
+# Setup
+import sys
+sys.path.append('src')
+
+import numpy as np
+import matplotlib.pyplot as plt
+from numpy.random import default_rng
+
+from RandomOptimizer import RandomOptimizer
+from GeneticAlgorithmOptimizer import GeneticAlgorithmOptimizer
+from AntColonyOptimizer import AntColonyOptimizer
+from SimulatedAnnealingOptimizer import SimulatedAnnealingOptimizer
+from Sequence import Sequence
+
+SEED = 42
+
+COLORS = {
+    'Random': '#1f77b4',           
+    'Genetic Algorithm': '#ff7f0e', 
+    'Simulated Annealing': '#2ca02c', 
+    'Ant Colony': '#d62728'         
+}
+
+```
+
+
+```{python}
+#| include: false
+
+# Runnin optimizers
+NUM_RUNS = 10
+NUM_STEPS = 200
+
+results = {
+    'Random': [],
+    'Genetic Algorithm': [],
+    'Simulated Annealing': [],
+    'Ant Colony': []
+}
+
+timing_data = {
+    'Random': [],
+    'Genetic Algorithm': [],
+    'Simulated Annealing': [],
+    'Ant Colony': []
+}
+
+memory_data = {
+    'Random': [],
+    'Genetic Algorithm': [],
+    'Simulated Annealing': [],
+    'Ant Colony': []
+}
+
+for run in range(NUM_RUNS):
+    run_rng = default_rng(SEED + run)
+    initial_seq_1 = Sequence(Sequence.random_sequence(run_rng))
+    initial_seq_2 = Sequence(Sequence.random_sequence(run_rng))
+    initial_sequences = (initial_seq_1, initial_seq_2)
+
+    # Random Optimizer
+    run_rng = default_rng(SEED + run)
+    result, perf = RandomOptimizer.optimize_with_performance_measurements(initial_sequences, NUM_STEPS, run_rng)
+    results['Random'].append(result.cost_history)
+    timing_data['Random'].append(perf.runtime_seconds)
+    memory_data['Random'].append(perf.peak_memory_bytes / 1024)
+    
+    # Genetic Algorithm
+    run_rng = default_rng(SEED + run)
+    result, perf = GeneticAlgorithmOptimizer.optimize_with_performance_measurements(initial_sequences, NUM_STEPS, run_rng)
+    results['Genetic Algorithm'].append(result.cost_history)
+    timing_data['Genetic Algorithm'].append(perf.runtime_seconds)
+    memory_data['Genetic Algorithm'].append(perf.peak_memory_bytes / 1024)
+    
+    # Simulated Annealing
+    run_rng = default_rng(SEED + run)
+    result, perf = SimulatedAnnealingOptimizer.optimize_with_performance_measurements(initial_sequences, NUM_STEPS, run_rng)
+
+    results['Simulated Annealing'].append(result.cost_history)
+    timing_data['Simulated Annealing'].append(perf.runtime_seconds)
+    memory_data['Simulated Annealing'].append(perf.peak_memory_bytes / 1024)
+    
+    # Ant Colony
+    run_rng = default_rng(SEED + run)
+    result, perf = AntColonyOptimizer.optimize_with_performance_measurements(initial_sequences, NUM_STEPS, run_rng)
+    results['Ant Colony'].append(result.cost_history)
+    timing_data['Ant Colony'].append(perf.runtime_seconds)
+    memory_data['Ant Colony'].append(perf.peak_memory_bytes / 1024)
+    
+```
+
+# Cost History for each Run
+
+```{python}
+fig, ax = plt.subplots(figsize=(12, 7))
+
+for optimizer_name, runs in results.items():
+    color = COLORS[optimizer_name]
+    
+    for run_idx, cost_history in enumerate(runs):
+        # Add label only for the first run of each optimizer
+        label = optimizer_name if run_idx == 0 else None
+        
+        steps = range(len(cost_history))
+        ax.plot(steps, cost_history, color=color, alpha=0.6, 
+                linewidth=1.5, label=label)
+
+# Formatting
+ax.set_xlabel('Optimization Step', fontsize=12)
+ax.set_ylabel('Cost', fontsize=12)
+ax.set_title('Optimizer Comparison: Cost History Over 5 Runs', fontsize=14, fontweight='bold')
+ax.legend(loc='upper right', fontsize=11)
+ax.grid(True, alpha=0.3)
+ax.set_xlim(0, NUM_STEPS - 1)
+
+plt.tight_layout()
+plt.show()
+```
+
+# Aggregated Cost History
+
+```{python}
+fig, ax = plt.subplots(figsize=(12, 7))
+
+for optimizer_name, runs in results.items():
+    color = COLORS[optimizer_name]
+    runs_array = np.array(runs)
+    
+    mean_cost = np.mean(runs_array, axis=0)
+    std_cost = np.std(runs_array, axis=0)
+    steps = np.arange(len(mean_cost))
+    
+    ax.plot(steps, mean_cost, color=color, linewidth=2, label=optimizer_name)
+    ax.fill_between(steps, mean_cost - std_cost, mean_cost + std_cost, 
+                    color=color, alpha=0.2)
+
+ax.set_xlabel('Optimization Step', fontsize=12)
+ax.set_ylabel('Cost', fontsize=12)
+ax.set_title('Aggregated Cost History: Mean ± Std Deviation', fontsize=14, fontweight='bold')
+ax.legend(loc='upper right', fontsize=11)
+ax.grid(True, alpha=0.3)
+ax.set_xlim(0, NUM_STEPS - 1)
+
+plt.tight_layout()
+plt.show()
+```
+
+# Performance Metrics
+
+## Time Consumption
+
+```{python}
+fig, ax = plt.subplots(figsize=(12, 6))
+
+optimizers = list(timing_data.keys())
+x = np.arange(len(optimizers))
+bar_width = 0.8 / NUM_RUNS
+
+for run_idx in range(NUM_RUNS):
+    times = [timing_data[opt][run_idx] for opt in optimizers]
+    offset = (run_idx - NUM_RUNS / 2 + 0.5) * bar_width
+    ax.bar(x + offset, times, bar_width, color='gray', edgecolor='white', linewidth=0.5)
+
+ax.set_xlabel('Optimizer', fontsize=12)
+ax.set_ylabel('Time (seconds)', fontsize=12)
+ax.set_title('Execution Time per Run', fontsize=14, fontweight='bold')
+ax.set_xticks(x)
+ax.set_xticklabels(optimizers, fontsize=10)
+ax.grid(True, alpha=0.3, axis='y')
+
+plt.tight_layout()
+plt.show()
+```
+
+## Memory Usage
+
+```{python}
+fig, ax = plt.subplots(figsize=(12, 6))
+
+optimizers = list(memory_data.keys())
+x = np.arange(len(optimizers))
+bar_width = 0.8 / NUM_RUNS
+
+for run_idx in range(NUM_RUNS):
+    memory = [memory_data[opt][run_idx] for opt in optimizers]
+    offset = (run_idx - NUM_RUNS / 2 + 0.5) * bar_width
+    ax.bar(x + offset, memory, bar_width, color='gray', edgecolor='white', linewidth=0.5)
+
+ax.set_xlabel('Optimizer', fontsize=12)
+ax.set_ylabel('Peak Memory (KB)', fontsize=12)
+ax.set_title('Peak Memory Usage per Run', fontsize=14, fontweight='bold')
+ax.set_xticks(x)
+ax.set_xticklabels(optimizers, fontsize=10)
+ax.grid(True, alpha=0.3, axis='y')
+
+plt.tight_layout()
+plt.show()
+```
+
