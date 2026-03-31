@@ -34,6 +34,6 @@ class RandomOptimizer(Optimizer):
                 optimizationResult.best_cost = new_cost
                 optimizationResult.best_sequences = new_sequences
 
-            optimizationResult.cost_history.append(new_cost)
+            optimizationResult.cost_history.append(optimizationResult.best_cost)
 
         return optimizationResult
