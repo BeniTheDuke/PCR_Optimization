@@ -88,7 +88,53 @@ This results in an extremely large combinatorial space, making brute force searc
 
 ### 1.1 Mathematical Formulation of the PCR Primer Design Optimization Problem
 
-**"" THIS SPACE FOR COST FUNCTION AND DEFINITION OF VARIABLES AND CONSTRAINTS""**
+The application minimizes the total cost of a primer pair $(s_1, s_2)$. The cost function consists of five parts:
+
+$$
+C(s_1,s_2)=C_T + C_{GC} + C_R + C_H + C_D
+$$
+
+The five different parts, briefly explained, are:
+
+1. $C_T$: penalizes melting temperatures far from the target and penalizes mismatch between the
+   two primers' melting temperatures.
+2. $C_{GC}$: penalizes deviation of each primer's GC fraction from the target.
+3. $C_R$: penalizes long homopolymer runs (repeats).
+4. $C_H$: penalizes hairpin-forming potential using each sequence's hairpin score.
+5. $C_D$: penalizes primer-dimer risk from complementary runs between the two primers (especially
+   near sequence ends).
+
+They are calculated as such:
+
+$$
+\begin{aligned}
+C_T &= w_{Tt}\!\left[(T^*-T_m(s_1))^2 + (T^*-T_m(s_2))^2\right]
+      + w_{Tb}\!\left[T_m(s_1)-T_m(s_2)\right]^2,\\
+C_{GC} &= w_{GC}\!\left[(G^*-GC(s_1))^2 + (G^*-GC(s_2))^2\right],\\
+C_R &= w_R\!\left(\mathbf{1}[R(s_1)>r_0]\cdot R(s_1)+\mathbf{1}[R(s_2)>r_0]\cdot R(s_2)\right),\\
+C_H &= w_H\!\left(H(s_1)+H(s_2)\right),\\
+C_D &= w_D\cdot D(s_1,s_2).
+\end{aligned}
+$$
+
+with:
+
+| Symbol        | Meaning                                           |
+| --------      | ------------------------------------------------- |
+| $GC(s)$       | Calculate GC content of a sequence $s$            |
+| $T_m(s)$      | Calculate melting temperature of a sequence $s$   |
+| $R(s)$        | Get the longest repeat in a sequence $s$          |
+| $r_0$         | Minimum length of a repeat to affect the cost (3) |
+| $H(s)$        | Calculate the hairpin score of sequence $s$       |
+| $D(s_1, s_2)$ | Calculate the dimer score of sequence $s_1$ and $s_2$        |
+| $T^*$         | Target temperature (60°C)                         |
+| $G^*$         | Target GC content (0.5)                           |
+
+The symbols starting with $w$ stand for weights. The weights can be used to normalize the different
+scores but also to prioritize them. The exact numbers are a matter of what the goal of the
+optimization is and need to be customized per case. Thus we do not suggest a certain set of weights.
+The ones that were used can be found in the code.
+
 
 \newpage
 
