@@ -5,7 +5,7 @@ from Nucleotide import Nucleotide
 
 
 class Sequence:
-    LENGTH = 20
+    LENGTH = 25
 
     def __init__(self, nucleotides: list[Nucleotide]):
         if len(nucleotides) != Sequence.LENGTH:
