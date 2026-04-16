@@ -140,9 +140,8 @@ The ones that were used can be found in the code.
 
 ### 2.1 Random Search Optimizer
 
-""""" THIS SPACE FOR RANDOM SEARCH """"""
+The random search optimizer has been implemented to serve as a baseline to compare the other algorithms to. It randomly changes a nucleotide and adopts the change as long as it does not negatively impact the cost. 
 
-""THIS SPACE FOR RANDOM SEARCH""""""
 
 ### 2.2 Genetic Algorithm Optimizer Implementation
 
