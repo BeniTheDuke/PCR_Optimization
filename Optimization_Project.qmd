@@ -76,15 +76,15 @@ April 2026
 \section*{Introduction}
 \end{center}
 
-PCR primer design optimization is essential for achieving high specificity, sensitivity, and yield in DNA amplification. A key factor in successful PCR is the design of effective primers, which must satisfy constraints such as appropriate GC content, melting temperature, and minimal secondary structure. Poorly optimized parameters can lead to issues such as primer dimerization, mispriming, weak amplification, and nonspecific binding, or even complete reaction failure. Therefore, PCR primer design can be formulated as an optimization problem, where the goal is to identify primer sequences that maximize efficiency and reliability under various biological constraints.
+Polymerase Chain Reaction (PCR) is a common laboratory technique to amplify specific regions of DNA. The first step in any PCR experiment is the selection of two primers, short oligonucleotide sequences of 18-25 bases drawn from the nucleotide alphabet $\{A, C, G, T\}$, which define the boundaries of the amplified region. The composition and order of these primers directly determines their thermodynamic and structural properties such as binding specificity, annealing efficiency, and susceptibility to hairpin formations and primer-dimer interactions.
 
-Chuang et al. (2013) recommend that a good PCR primer length typically ranges between 16 and 28 bases. In this study, we optimize a pair of PCR primer sequences $p_1$​ and $p_2$ (forward and reverse), each of fixed length $L=25$, where each nucleotide position can take one of four possible states : $p_1,p_2 ∈ \{ A, C, G,T \}^ {25}$ thus resulting in a total search space $S$ given as
+For a fixed primer length of $L=25$, where each position can take one of four nucleotide states, the search space for a primer pair $p_1, p_2$ is:
 
 $$
 S = \{(p_1, p_2) \mid p_1, p_2 \in \{A, C, G, T\}^{25} \}, \quad |S| = 4^{50}
 $$
 
-This results in an extremely large combinatorial space, making brute force search computationally in-feasible. Therefore, heuristic optimization algorithms are employed to efficiently explore the search space and identify high quality primer pairs. Algorithm performance is benchmarked with respect to solution quality, computational time, memory usage, and robustness.
+Exhaustive evaluation of $4^{50}$ candidate pairs if computational unfeasible, motivating the use of optimization methods. We define a cost function that penalizes undesirable primer properties: deviation of melting temperature from a target of $60\,^\circ\text{C}$, melting temperature mismatch between the two primers, % of bases represented by G and C far from 50%, long single nucelotide repeats, self complimentarity between primers that may form hairpins, and 3' cross-complementary regions that may produce primer-dimers. The objective is to find the primer pair that minimizes this cost function. Four optimization algorithms (Random Search, Simulated Annealing, Genetic Algorithm, and Ant Colony Optimization) are implemented and compared with respect to solution quality, computational efficiency, and robustness.
 
 ### 1.1 Mathematical Formulation of the PCR Primer Design Optimization Problem
 
@@ -160,7 +160,7 @@ Ant Colony Optimization is a method inspired by how ants find short paths using 
 
 \newpage
 
-### 4.1 Comaparison of Algorithm based on benchmark and Visualization
+### 4.1 Comparison of Algorithm based on benchmark and Visualization
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
@@ -183,187 +183,3 @@ Ochoa, G., 2002. *Setting the mutation rate: Scope and limitations of the 1/L he
 Asif, S., Khan, M., Arshad, M.W. and Shabbir, M.I., 2021. PCR optimization for beginners: A step by step guide. Research in Molecular Medicine, 9(2), pp.81–102
 
 \newpage
-
-The optimization algorithms explore this combinatorial search space to identify sequences that minimize a primer quality cost function.
-
-### Why are we optimizing
-
-For a primer of Length $L$ each nucleotide can take one of 4 Possible states
-
-$$
-bi\in \{A,C,G,T\} = 4
-$$
-
-therefore, the total number of possible sequences in the Search space $S$ is
-
-$$
-S = 4^L
-$$
-
-A commonly recommened length for a good PCR primer is usually between 18 to 25 bases .
-
-if then we decide on designing a PCR primer of length $L$ = $20$ then the search space $S$
-
-$$
-S = 4^{20}
-$$This results in more than one trillion possible sequences, making brute force search computationally infeasible. Therefore, the need for optimization algorithms such as Genetic Algorithms and Simulated Annealing are used to efficiently explore this large combinatorial space and identify high quality primer sequences.
-
-### 3 How do we optimize
-
-To keep the problem simple and focused on algorithm comparison, primer quality is evaluated using only criteria:
-
-**Fixed Constraint**
-
--   Primer length (20)
-
-**Soft Constraint**
-
-$GC_{target}$ = 0.5
-
-$T_{target}$ = $60^{0_c}$
-
-**Optimization Criteria**
-
--   Melting temperature
-
--   GC content
-
--   Penalties on repeated bases
-
-**Other Criteria not considered**
-
--   *Hairpins*
-
--   *Primer dimers*
-
--   *Specificity*
-
-These factors were excluded to keep the optimization problem tractable and to focus the study on comparing algorithm performance rather than developing a fully biologically realistic PCR primer design tool.
-
-### 3.1 Primer quality cost function (objective function)
-
-To evaluate the quality of a potential primer sequence, we define a primer quality cost function that measures how well the sequence satisfies the desired design criteria. The goal of the optimization algorithms is to find the primer sequence that minimizes this cost function.
-
-therefore the optimization problem can therefore be formulated mathematically as
-
-$$
-\min_{x\in S}F(x)
-$$
-
-where:
-
-$x$ = potential primer sequence
-
-$S$ = the search space containing all possible nucleotide sequences of length $L$
-
-$F(x)$ is the primer quality cost function
-
-A primer sequence can be represented as
-
-$$
-x = ({ b1, b2, b3, b4,b5 .........b20})
-$$ where each nucleotide position $bi$**​** can take one of four possible states
-
-$$
-bi \in \{ A, C, G, T\}
-$$
-
-The primer quality cost function is therefore defined as
-
-$$
-F(x) = W1|T_m(x) - T_{target}|+ W2| GC(x) - GC_{target}| + W3P{repeat}(x)
-$$
-
-where:
-
-$T_m$ = melting temperature of the primer sequence
-
-$GC$ = Guanine and Cytosine content of the primer sequence
-
-$P_{repeat}(x)$ = penalty applied to sequences containing long repeated bases of length more than 3, example AAAA or CCCCC or GGGGGG
-
-${w1, w2, w3}$ = weighting factors controlling the importance of each term
-
-### 3.2 Definition of optimization Criteria
-
-**Melting temperature rule**
-
-Here we define our the melting temperature of the primer using the Wallace rule
-
-for every ( G or C ) gets $4^0C$
-
-for every ( A or T ) gets $2^0C$
-
-$T_m$ = $2(A + T) + 4( G + C )$
-
-Where:
-
-$A$ = number of A bases
-
-$T$ = number of T bases
-
-$G$ = number of G bases
-
-$C$ = number of C bases
-
-There for assuming a primer has
-
-$A = 6$
-
-$T = 6$
-
-$G = 4$
-
-$C = 4$
-
-there fore
-
-$$
-T_m = 2( 6 + 6 ) + 4(4 + 4 )
-$$
-
-$$
-T_m = 24 + 32 = 56^0C
-$$
-
-**GC Content**
-
-Here we define our Mathemathical notation for our $GC$ content
-
-$$
-GC(x) = \frac {G + C}{L}
-$$
-
-where
-
-$G$ = number of G bases in the primer
-
-$C$ = number of C bases in the primer
-
-$L$ = primer length
-
-Therefore assuming we have a primer with $G = 4$ and $C = 4$ and primer length $L$ = 20, $GC(x)$ is therefore
-
-$$
-GC = \frac {8}{20} = 0.4
-$$
-
-**Penalty applied to sequences with long repeated bases**
-
-A repeat penalty function $P_{repeat}(x)$ is introduced to discourage long runs of identical nucleotides. Sequences containing runs of more than three identical bases are penalized, as such patterns can reduce primer quality and increase the likelihood of mispriming.
-
-this is given mathematically as\
-\
-$$
-P_{\text{repeat}}(x)=\max(0,\; r(x)-3)
-$$where
-
-$r(x)$ = length of the longest run of identical consecutive bases in sequence $x$
-
-if $r(x)$ is 3 or less $P_{repeat} = 0$
-
-if $r(x)$ is 4 $P_{repeat} = 1$
-
-if $r(x)$ is 5 $P_{repeat} = 2$ ...................
-
-The optimization algorithms attempt to minimize this cost function, thereby identifying primer sequences whose melting temperature and GC content are close to the desired target values while avoiding long repeated nucleotide pattern.
