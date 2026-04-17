@@ -86,7 +86,10 @@ $$
 
 Exhaustive evaluation of $4^{50}$ candidate pairs if computational unfeasible, motivating the use of optimization methods. We define a cost function that penalizes undesirable primer properties: deviation of melting temperature from a target of $60\,^\circ\text{C}$, melting temperature mismatch between the two primers, % of bases represented by G and C far from 50%, long single nucelotide repeats, self complimentarity between primers that may form hairpins, and 3' cross-complementary regions that may produce primer-dimers. The objective is to find the primer pair that minimizes this cost function. Four optimization algorithms (Random Search, Simulated Annealing, Genetic Algorithm, and Ant Colony Optimization) are implemented and compared with respect to solution quality, computational efficiency, and robustness.
 
-### 1.1 Mathematical Formulation of the PCR Primer Design Optimization Problem
+# Mathematical Formulation of the PCR Primer Design Optimization Problem
+
+
+### Optimization Cost function
 
 The application minimizes the total cost of a primer pair $(s_1, s_2)$. The cost function consists of five parts:
 
@@ -130,23 +133,25 @@ with:
 
 The symbols starting with $w$ stand for weights. The weights can be used to normalize the different scores but also to prioritize them. The exact numbers are a matter of what the goal of the optimization is and need to be customized per case. Thus we do not suggest a certain set of weights. The ones that were used can be found in the code.
 
-\newpage
+# Optimization Algorithms 
+
 
 ### 2.1 Random Search Optimizer
 
 The random search optimizer has been implemented to serve as a baseline to compare the other algorithms to. It randomly changes a nucleotide and adopts the change as long as it does not negatively impact the cost.
 
-### 2.2 Genetic Algorithm Optimizer Implementation
+### 2.2 Genetic Algorithm Optimizer
 
-Genetic algorithm is a search technique that mimics natural selection to find optimal solutions by iteratively refining a population of candidate solutions (Mckee, 2024). Each individual in the population represents a primer pair $(p_1,p_2)$. We begin the GA implementation by initializing a population of randomly generated primer pairs sequence, Each individual is evaluated using a fitness function defined as the primer quality cost function, where lower values indicate better solutions.
+Genetic algorithm is a search technique that mimics natural selection to find optimal solutions by iteratively refining a population of candidate solutions (Mckee, 2024). In this study it is used to optimize PCR primer pairs, where each individual represents a primer pair $(p_1, p_2)$ of fixed length $L=25$ over $\{A,C,G,T\}$.
 
-At each generation, the population is updated through the following steps:
+The population is initialized with randomly generated primer pairs and each individual is evaluated using the defined primer cost function, where lower values indicate better solutions.
 
-Tournament selection is used to choose parent solutions based on fitness, as it is simple, computationally efficient, and robust to fitness scaling compared to alternatives such as roulette wheel and ranking , while also allowing a controllable balance between exploration and exploitation through the tournament size. A single-point crossover is applied to exchange segments between parent sequences, promoting exploration while preserving contiguous nucleotide patterns, which is well-suited for sequence-based problems such as PCR primer design. Mutation is performed by randomly altering each nucleotide with a small probability using a rate of $1/L$ following a standard heuristic (Ochoa, 2002), thereby introducing diversity and preventing premature convergence. Elitism is incorporated by preserving the best individual in each generation, ensuring exploitation of high-quality solutions
+At each generation, tournament selection is used to select parent primer pairs based on fitness. Selected parents are randomly paired, and single point crossover is applied to both forward and reverse primers, exchanging nucleotide segments to generate offspring.
 
-This iterative process updates the population over a fixed number of generations while tracking the best solution found. The final output is the primer pair with the minimum cost.
+Mutation is performed by randomly altering nucleotides with probability (Ochoa, 2002) introducing diversity and enabling exploration of the search space.
 
-\newpage
+Elitism is implemented by replacing the worst individual in the new population with the best solution found so far, ensuring that high quality primer pairs are preserved. This process is repeated for a fixed number of generations, and the final output is the primer pair with the minimum cost
+
 
 ### 3.1 Simulated Annealing Optimizer
 
@@ -158,7 +163,7 @@ When the neighbor state leads to a decrease in the cost function the move is alw
 
 Ant Colony Optimization is a method inspired by how ants find short paths using pheromone trails . In this implementation, each ant builds a candidate solution representing a primer pair (p1,p2) , where the goal is to minimize the primer quality cost function. The algorithm starts with equal pheromone values. At each iteration, ants create primer pairs by making random choices guided by these pheromone values, where better solutions are more likely to be selected. Each solution is evaluated using the primer quality cost function. After all ants have built their solutions, pheromone values are increased for better primer pairs, while all values are slightly reduced to keep the search diverse. This process is repeated for a fixed number of iterations while tracking the best solution found. The final output is the primer pair with the minimum cost.
 
-\newpage
+
 
 ### 4.1 Comparison of Algorithm based on benchmark and Visualization
 
@@ -172,7 +177,7 @@ Ant Colony Optimization is a method inspired by how ants find short paths using 
 
 \newpage
 
-### Appendix and References
+# References
 
 Chuang, L.Y., Cheng, Y.H. and Yang, C.H., 2013. Specific primer design for the polymerase chain reaction. *Biotechnology Letters*, 35(10), pp.1541–1549.
 
