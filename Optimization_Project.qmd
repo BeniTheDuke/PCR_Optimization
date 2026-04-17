@@ -182,4 +182,6 @@ Ochoa, G., 2002. *Setting the mutation rate: Scope and limitations of the 1/L he
 
 Asif, S., Khan, M., Arshad, M.W. and Shabbir, M.I., 2021. PCR optimization for beginners: A step by step guide. Research in Molecular Medicine, 9(2), pp.81–102
 
-\newpage
+### Source Code
+The source code can be found in our git repository: [https://github.com/BeniTheDuke/PCR_Optimization](https://github.com/BeniTheDuke/PCR_Optimization).
+The implementation with all the required classes are in th `src` folder. The visualizations for the comparison were generated with `/optimizer_comparison.qmd`.
