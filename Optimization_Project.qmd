@@ -156,21 +156,7 @@ When the neighbor state leads to a decrease in the cost function the move is alw
 
 ### 3.2 Ant Colony Optimizer
 
-""""""""""""""
-
-""""""""""""""""""
-
-""""""""""""""""""""
-
-""""""""""""""""""
-
-""""""""""""""""""
-
-'''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+Ant Colony Optimization is a method inspired by how ants find short paths using pheromone trails . In this implementation, each ant builds a candidate solution representing a primer pair (p1,p2) , where the goal is to minimize the primer quality cost function. The algorithm starts with equal pheromone values. At each iteration, ants create primer pairs by making random choices guided by these pheromone values, where better solutions are more likely to be selected. Each solution is evaluated using the primer quality cost function. After all ants have built their solutions, pheromone values are increased for better primer pairs, while all values are slightly reduced to keep the search diverse. This process is repeated for a fixed number of iterations while tracking the best solution found. The final output is the primer pair with the minimum cost.
 
 \newpage
 
