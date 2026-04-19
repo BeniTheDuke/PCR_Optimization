@@ -25,6 +25,7 @@ sys.path.append('src')
 import numpy as np
 import matplotlib.pyplot as plt
 from numpy.random import default_rng
+from IPython.display import Markdown, display
 
 from RandomOptimizer import RandomOptimizer
 from GeneticAlgorithmOptimizer import GeneticAlgorithmOptimizer
@@ -217,3 +218,21 @@ plt.tight_layout()
 plt.show()
 ```
 
+## Exact Average Results
+
+```{python}
+summary_rows = []
+
+for optimizer_name in results.keys():
+    avg_time = np.mean(timing_data[optimizer_name])
+    avg_best_score = np.mean([np.min(cost_history) for cost_history in results[optimizer_name]])
+    avg_memory = np.mean(memory_data[optimizer_name])
+    summary_rows.append((optimizer_name, avg_time, avg_best_score, avg_memory))
+
+table_md = "| Algorithm | Average Time Consumption (s) | Average Best Score | Average Memory Consumption (KB) |\n"
+table_md += "|---|---:|---:|---:|\n"
+for optimizer_name, avg_time, avg_best_score, avg_memory in summary_rows:
+    table_md += f"| {optimizer_name} | {avg_time:.6f} | {avg_best_score:.6f} | {avg_memory:.2f} |\n"
+
+display(Markdown(table_md))
+```
