@@ -27,8 +27,7 @@ format:
 editor: visual
 ---
 
- <!-- LTeX: enabled=false -->
-<!-- prettier-ignore-start -->
+<!-- LTeX: enabled=false --> <!-- prettier-ignore-start -->
 
 \thispagestyle{empty}  
 \vspace*{\fill}  
@@ -79,15 +78,12 @@ April 2026
 <!-- prettier-ignore-end -->
 
 <!-- LTeX: enabled=true -->
-<!-- LTeX: language=en-GB -->
 
+<!-- LTeX: language=en-GB -->
 
 # Introduction
 
-Polymerase Chain Reaction (PCR) is a common laboratory technique to amplify specific regions of DNA. The first step in any PCR experiment is the
-selection of two primers, short oligonucleotide sequences of 18–25 bases drawn from the nucleotide alphabet $\{A, C, G, T\}$, which define the
-boundaries of the amplified region. The composition and order of these primers directly determines their thermodynamic and structural properties such
-as binding specificity, annealing efficiency, and susceptibility to hairpin formations and primer-dimer interactions.
+Polymerase Chain Reaction (PCR) is a common laboratory technique to amplify specific regions of DNA. The first step in any PCR experiment is the selection of two primers, short oligonucleotide sequences of 18–25 bases drawn from the nucleotide alphabet $\{A, C, G, T\}$, which define the boundaries of the amplified region. The composition and order of these primers directly determines their thermodynamic and structural properties such as binding specificity, annealing efficiency, and susceptibility to hairpin formations and primer-dimer interactions.
 
 For a fixed primer length of $L=25$, where each position can take one of four nucleotide states, the search space for a primer pair $p_1, p_2$ is:
 
@@ -95,12 +91,7 @@ $$
 S = \{(p_1, p_2) \mid p_1, p_2 \in \{A, C, G, T\}^{25} \}, \quad |S| = 4^{50}
 $$
 
-Exhaustive evaluation of $4^{50}$ candidate pairs if computational unfeasible, motivating the use of optimization methods. We define a cost function
-that penalizes undesirable primer properties: deviation of melting temperature from a target of $60\,^\circ\text{C}$, melting temperature mismatch
-between the two primers, % of bases represented by G and C far from 50%, long single nucleotide repeats, self complementarity between primers that may
-form hairpins, and 3' cross-complementary regions that may produce primer-dimers. The objective is to find the primer pair that minimizes this cost
-function. Four optimization algorithms (Random Search, Simulated Annealing, Genetic Algorithm, and Ant Colony Optimization) are implemented and
-compared with respect to solution quality, computational efficiency, and robustness.
+Exhaustive evaluation of $4^{50}$ candidate pairs if computational infeasible, motivating the use of optimization methods. Primer design has previously been formulated as an optimization problem and tackled with genetic algorithms (Wu et al., 2007) and simulated annealing (Montera and Nicoletti, 2008). This project extends the comparison to include Ant Colony Optimization and evaluates all methods on a fixed computational budget. We define a cost function that penalizes undesirable primer properties: deviation of melting temperature from a target of $60\,^\circ\text{C}$, melting temperature mismatch between the two primers, % of all bases represented by G or C far from 50%, long single nucleotide repeats, self complementarity within primers that may form hairpins, and 3' cross-complementary regions that may produce primer-dimers. The objective is to find the primer pair that minimizes this cost function. Four optimization algorithms (Random Search, Simulated Annealing, Genetic Algorithm, and Ant Colony Optimization) are implemented and compared with respect to solution quality, computational efficiency, and robustness.
 
 # Cost Function and Parameters
 
@@ -134,7 +125,7 @@ $$
 with:
 
 | Symbol        | Meaning                                               |
-| ------------- | ----------------------------------------------------- |
+|---------------|-------------------------------------------------------|
 | $GC(s)$       | Calculate GC content of a sequence $s$                |
 | $T_m(s)$      | Calculate melting temperature of a sequence $s$       |
 | $R(s)$        | Get the longest repeat in a sequence $s$              |
@@ -144,54 +135,37 @@ with:
 | $T^*$         | Target temperature (60°C)                             |
 | $G^*$         | Target GC content (0.5)                               |
 
-The symbols starting with $w$ stand for weights. The weights can be used to normalize the different scores but also to prioritize them. The exact
-numbers are a matter of what the goal of the optimization is and need to be customized per case. Thus, we do not suggest a certain set of weights. The
-ones that were used can be found in the code.
+The symbols starting with $w$ stand for weights. The weights can be used to normalize the different scores but also to prioritize them. The exact numbers are a matter of what the goal of the optimization is and need to be customized per case. Thus, we do not suggest a certain set of weights. The ones that were used can be found in the code.
 
 # Optimization Algorithms
 
 ## Random Search Optimizer
 
-The random search optimizer has been implemented to serve as a baseline to compare the other algorithms to. It randomly changes a nucleotide and
-adopts the change as long as it does not negatively impact the cost.
+The random search optimizer has been implemented to serve as a baseline to compare the other algorithms to. It randomly changes a nucleotide and adopts the change as long as it does not negatively impact the cost.
 
 ## Genetic Algorithm Optimizer
 
-Genetic algorithm is a search technique that mimics natural selection to find optimal solutions by iteratively refining a population of candidate
-solutions (Mckee, 2024). In this study it is used to optimize PCR primer pairs, where each individual represents a primer pair $(p_1, p_2)$ of fixed
-length $L=25$ over $\{A,C,G,T\}$.
+Genetic algorithm (GA) is a search technique that mimics natural selection to find optimal solutions by iteratively refining a population of candidate solutions (Mckee, 2024). In this study it is used to optimize PCR primer pairs, where each individual represents a primer pair $(p_1, p_2)$ of fixed length $L=25$ over $\{A,C,G,T\}$.
 
-The population is initialized with randomly generated primer pairs and each individual is evaluated using the defined primer cost function, where
-lower values indicate better solutions.
+The population is initialized with randomly generated primer pairs and each individual is evaluated using the defined primer cost function, where lower values indicate better solutions.
 
-At each generation, tournament selection is used to select parent primer pairs based on fitness. Selected parents are randomly paired, and single
-point crossover is applied to both forward and reverse primers, exchanging nucleotide segments to generate offspring.
+At each generation, tournament selection is used to select parent primer pairs based on fitness. Selected parents are randomly paired, and single point crossover is applied to both forward and reverse primers, exchanging nucleotide segments to generate offspring.'
 
-Mutation is performed by randomly altering nucleotides with probability (Ochoa, 2002) introducing diversity and enabling exploration of the search
-space.
+Mutation is performed by rnadomly altering each nucleotide with a probability 1/ $L$ per position, following the standard heuristic proposed by Ochoa (2022), introducing diversity and enabling exploration of the search space.
 
-Elitism is implemented by replacing the worst individual in the new population with the best solution found so far, ensuring that high quality primer
-pairs are preserved. This process is repeated for a fixed number of generations, and the final output is the primer pair with the minimum cost
+Mutation is performed by randomly altering nucleotides with probability (Ochoa, 2002) introducing diversity and enabling exploration of the search space.
+
+Elitism is implemented by replacing the worst individual in the new population with the best solution found so far, ensuring that high quality primer pairs are preserved. This process is repeated for a fixed number of generations, and the final output is the primer pair with the minimum cost
 
 ## Simulated Annealing Optimizer
 
-Simulated Annealing (SA) is an optimization method that's inspired by the physical process of slowly cooling molten material into a crystalline state,
-allowing the search to escape local minima by probabilistically accepting worse solutions early in the process (Kirkpatrick et al., 1983), In this
-problem, each state is defined as a pair of two 25-base strings, and each neighbour stated is generated by randomly selecting one of the 50 possible
-bases to switch to one of the three possible base values.
+Simulated Annealing (SA) is an optimization method inspired by the physical process of slowly cooling molten material into a crystalline state, allowing the search to escape local minima by probabilistically accepting worse solutions early in the process (Kirkpatrick et al., 1983). In this problem, the approach follows a similar framework each state is defined as a pair of two 25-base strings, and each neighbour state is generated by randomly selecting one of the 50 possible bases to switch to one of the three possible base values.
 
-When the neighbour state leads to a decrease in the cost function the move is always accepted; otherwise it is accepted with probability
-$\exp(-\Delta C / T)$ where $\Delta C$ is the cost difference and $T$ is the current temperature. This project used a geometric cooling schedule
-defined by $T_{k+1} = \alpha \cdot T_k$ with an initial temperature $T_0 = 100$ and $\alpha = 0.995$, and the algorithm ran 1,000 times.
+When the neighbour state leads to a decrease in the cost function the move is always accepted; otherwise it is accepted with probability $\exp(-\Delta C / T)$ where $\Delta C$ is the cost difference and $T$ is the current temperature. This project used a geometric cooling schedule defined by $T_{k+1} = \alpha \cdot T_k$ with an initial temperature $T_0 = 100$ and $\alpha = 0.995$, and the algorithm ran 1,000 times.
 
 ## Ant Colony Optimizer
 
-Ant Colony Optimization is a method inspired by how ants find short paths using pheromone trails. In this implementation, each ant builds a candidate
-solution representing a primer pair (p1,p2), where the goal is to minimize the primer quality cost function. The algorithm starts with equal
-pheromone values. At each iteration, ants create primer pairs by making random choices guided by these pheromone values, where better solutions are
-more likely to be selected. Each solution is evaluated using the primer quality cost function. After all ants have built their solutions, pheromone
-values are increased for better primer pairs, while all values are slightly reduced to keep the search diverse. This process is repeated for a fixed
-number of iterations while tracking the best solution found. The final output is the primer pair with the minimum cost.
+Ant Colony Optimization is a method inspired by how ants find short paths using pheromone trails. In this implementation, each ant builds a candidate solution representing a primer pair (p1,p2), where the goal is to minimize the primer quality cost function. The algorithm starts with equal pheromone values. At each iteration, ants create primer pairs by making random choices guided by these pheromone values, where better solutions are more likely to be selected. Each solution is evaluated using the primer quality cost function. After all ants have built their solutions, pheromone values are increased for better primer pairs, while all values are slightly reduced to keep the search diverse. This process is repeated for a fixed number of iterations while tracking the best solution found. The final output is the primer pair with the minimum cost.
 
 # Results
 
@@ -199,28 +173,32 @@ number of iterations while tracking the best solution found. The final output is
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-
 ## Discussion and Conclusion
 
-\newpage
+All four algorithms improved substantially over random initialization, but differed in solution quality, efficiency, and robustness. The Genetic Algorithm achieved the lowest final cost of approximately 27, followed by Ant Colony Optimization and Random Search at around 30, while Simulated Annealing performed notably worse at approximately 60. SA's poor performance is attributable to premature convergence: the cooling rate of $\alpha=0.995$ was too aggressive for a search space of this size, causing the acceptance probability for uphill moves to decay before the algorithm could escape local minima. Adjusting to $\alpha=0.999$ and increasing the mutations per step from 1 to 4 would likely yield better results.
+
+All four algorithms were compared using the same budget of 1,000 steps. Under this constraint, SA required significantly less memory (12 KB) and time (\~34s) than GA (26 KB, \~302s), suggesting that giving SA a proportionally larger step budget could close the accuracy gap. Regarding robustness, GA, ACO, and Random Search produced consistent results across multiple runs with different seeds ($\pm 2$ in the final cost), while SA varied by $\pm 15$, reflecting the stochastic nature of which local minimum it became trapped in.
+
+Of the methods tested, the Genetic Algorithm is recommended for this problem due to its superior accuracy and robustness, despite higher computational cost. Its population-based search appears better suited to the mixed cost landscape, where Tm and GC terms vary smoothly but dimer terms create sharp discontinuities. Future work could extend this project by optimizing primers against a fixed template sequence, incorporating variable primer length, and more systematically tuning each algorithm's hyperparameters.
 
 # Appendix
 
 ## References
 
-Chuang, L.Y., Cheng, Y.H. and Yang, C.H., 2013. Specific primer design for the polymerase chain reaction. _Biotechnology Letters_, 35(10),
-pp.1541–1549.
+Asif, S., Khan, M., Arshad, M.W. and Shabbir, M.I., 2021. PCR optimization for beginners: A step by step guide. Research in Molecular Medicine, 9(2), pp.81–102.
 
-McKee, A., 2024. _Genetic algorithm: Complete guide with Python implementation_. Available at <https://www.datacamp.com> (Accessed: 7 April 2026).
+Chuang, L.Y., Cheng, Y.H. and Yang, C.H., 2013. Specific primer design for the polymerase chain reaction. *Biotechnology Letters*, 35(10), pp.1541–1549.
 
-Ochoa, G., 2002. _Setting the mutation rate: Scope and limitations of the 1/L heuristic_. In: _Proceedings of the Genetic and Evolutionary Computation
-Conference (GECCO 2002)_. San Francisco: Morgan Kaufmann, pp.315–322
+Kirkpatrick, S., Gelatt, C.D. and Vecchi, M.P., 1983. Optimization by simulated annealing. Science, 220(4598), pp.671–680.
 
-Asif, S., Khan, M., Arshad, M.W. and Shabbir, M.I., 2021. PCR optimization for beginners: A step by step guide. Research in Molecular Medicine, 9(2),
-pp.81–102
+McKee, A., 2024. *Genetic algorithm: Complete guide with Python implementation*. Available at <https://www.datacamp.com> (Accessed: 7 April 2026).
+
+Montera, L.C. and Nicoletti, M.C., 2008. A customized simulated annealing suitable for primer design in polymerase chain reaction processes. In: Bentley, P.J., Lee, D. and Jung, S. (eds.) Computational Intelligence in Biomedicine and Bioinformatics. Berlin: Springer, pp.221–241.
+
+Ochoa, G., 2002. *Setting the mutation rate: Scope and limitations of the 1/L heuristic*. In: *Proceedings of the Genetic and Evolutionary Computation Conference (GECCO 2002)*. San Francisco: Morgan Kaufmann, pp.315–322.
+
+Wu, L.C., Horng, J.T., Huang, H.Y., Chiang, Y.H., Huang, H.D. and Yang, C.H., 2007. Primer design for multiplex PCR using a genetic algorithm. Soft Computing, 11(9), pp.855–863.
 
 ## Source Code
 
-The source code can be found in our git repository:
-[https://github.com/BeniTheDuke/PCR_Optimization](https://github.com/BeniTheDuke/PCR_Optimization). The implementation with all the required classes
-are in the `src` folder. The visualizations for the comparison were generated with `/optimizer_comparison.qmd`.
+The source code can be found in our git repository: <https://github.com/BeniTheDuke/PCR_Optimization>. The implementation with all the required classes are in the `src` folder. The visualizations for the comparison were generated with `/optimizer_comparison.qmd`.
