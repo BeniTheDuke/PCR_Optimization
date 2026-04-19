@@ -91,7 +91,7 @@ $$
 S = \{(p_1, p_2) \mid p_1, p_2 \in \{A, C, G, T\}^{25} \}, \quad |S| = 4^{50}
 $$
 
-Exhaustive evaluation of $4^{50}$ candidate pairs if computational infeasible, motivating the use of optimization methods. Primer design has previously been formulated as an optimization problem and tackled with genetic algorithms (Wu et al., 2007) and simulated annealing (Montera and Nicoletti, 2008). This project extends the comparison to include Ant Colony Optimization and evaluates all methods on a fixed computational budget. We define a cost function that penalizes undesirable primer properties: deviation of melting temperature from a target of $60\,^\circ\text{C}$, melting temperature mismatch between the two primers, % of all bases represented by G or C far from 50%, long single nucleotide repeats, self complementarity within primers that may form hairpins, and 3' cross-complementary regions that may produce primer-dimers. The objective is to find the primer pair that minimizes this cost function. Four optimization algorithms (Random Search, Simulated Annealing, Genetic Algorithm, and Ant Colony Optimization) are implemented and compared with respect to solution quality, computational efficiency, and robustness.
+Exhaustive evaluation of $4^{50}$ candidate pairs is computational infeasible, motivating the use of optimization methods. Primer design has previously been formulated as an optimization problem and tackled with genetic algorithms (Wu et al., 2007) and simulated annealing (Montera and Nicoletti, 2008). This project extends the comparison to include Ant Colony Optimization and evaluates all methods on a fixed computational budget. We define a cost function that penalizes undesirable primer properties: deviation of melting temperature from a target of $60\,^\circ\text{C}$, melting temperature mismatch between the two primers, % of all bases represented by G or C far from 50%, long single nucleotide repeats, self complementarity within primers that may form hairpins, and 3' cross-complementary regions that may produce primer-dimers. The objective is to find the primer pair that minimizes this cost function. Four optimization algorithms (Random Search, Simulated Annealing, Genetic Algorithm, and Ant Colony Optimization) are implemented and compared with respect to solution quality, computational efficiency, and robustness.
 
 # Cost Function and Parameters
 
@@ -135,7 +135,18 @@ with:
 | $T^*$         | Target temperature (60°C)                             |
 | $G^*$         | Target GC content (0.5)                               |
 
-The symbols starting with $w$ stand for weights. The weights can be used to normalize the different scores but also to prioritize them. The exact numbers are a matter of what the goal of the optimization is and need to be customized per case. Thus, we do not suggest a certain set of weights. The ones that were used can be found in the code.
+The symbols starting with $w$ stand for weights, which normalize the different score magnitudes and encode the relative importance of each criterion. The weights used in this project are:
+
+| Weight   | Value | Description                               |
+|----------|-------|-------------------------------------------|
+| $w_{Tt}$ | 1     | Tm deviation from target                  |
+| $w_{Tb}$ | 2     | Tm mismatch between primers               |
+| $w_{GC}$ | 50    | GC content deviation                      |
+| $w_R$    | 10    | Homopolymer repeats (threshold $r_0 = 3$) |
+| $w_H$    | 5     | Hairpin self-complementarity              |
+| $w_D$    | 8     | Primer-dimer 3' complementarity           |
+
+The GC content weight is highest because the raw $(GC - 0.5)^2$ term produces very small values (fractions squared) and must be rescaled to be comparable to the temperature terms, which are already in units of $^{\circ}\text{C}^2$. Among the structural penalties, dimer is weighted above hairpin because dimer formation wastes both primers simultaneously, while a hairpin only affects one.
 
 # Optimization Algorithms
 
@@ -151,21 +162,21 @@ The population is initialized with randomly generated primer pairs and each indi
 
 At each generation, tournament selection is used to select parent primer pairs based on fitness. Selected parents are randomly paired, and single point crossover is applied to both forward and reverse primers, exchanging nucleotide segments to generate offspring.'
 
-Mutation is performed by rnadomly altering each nucleotide with a probability 1/ $L$ per position, following the standard heuristic proposed by Ochoa (2022), introducing diversity and enabling exploration of the search space.
+Mutation is performed by randomly altering each nucleotide with a probability 1/ $L$ per position, following the standard heuristic proposed by Ochoa (2002), introducing diversity and enabling exploration of the search space.
 
-Mutation is performed by randomly altering nucleotides with probability (Ochoa, 2002) introducing diversity and enabling exploration of the search space.
-
-Elitism is implemented by replacing the worst individual in the new population with the best solution found so far, ensuring that high quality primer pairs are preserved. This process is repeated for a fixed number of generations, and the final output is the primer pair with the minimum cost
+Elitism is implemented by replacing the worst individual in the new population with the best solution found so far, ensuring that high quality primer pairs are preserved. This process is repeated for a fixed number of generations, and the final output is the primer pair with the minimum cost.
 
 ## Simulated Annealing Optimizer
 
-Simulated Annealing (SA) is an optimization method inspired by the physical process of slowly cooling molten material into a crystalline state, allowing the search to escape local minima by probabilistically accepting worse solutions early in the process (Kirkpatrick et al., 1983). In this problem, the approach follows a similar framework each state is defined as a pair of two 25-base strings, and each neighbour state is generated by randomly selecting one of the 50 possible bases to switch to one of the three possible base values.
+Simulated Annealing (SA) is an optimization method inspired by the physical process of slowly cooling molten material into a crystalline state, allowing the search to escape local minima by probabilistically accepting worse solutions early in the process (Kirkpatrick et al., 1983). In this problem, the approach follows a similar framework; each state is defined as a pair of two 25-base strings, and each neighbour state is generated by randomly selecting one of the 50 possible bases to switch to one of the three possible base values.
 
 When the neighbour state leads to a decrease in the cost function the move is always accepted; otherwise it is accepted with probability $\exp(-\Delta C / T)$ where $\Delta C$ is the cost difference and $T$ is the current temperature. This project used a geometric cooling schedule defined by $T_{k+1} = \alpha \cdot T_k$ with an initial temperature $T_0 = 100$ and $\alpha = 0.995$, and the algorithm ran 1,000 times.
 
 ## Ant Colony Optimizer
 
-Ant Colony Optimization is a method inspired by how ants find short paths using pheromone trails. In this implementation, each ant builds a candidate solution representing a primer pair (p1,p2), where the goal is to minimize the primer quality cost function. The algorithm starts with equal pheromone values. At each iteration, ants create primer pairs by making random choices guided by these pheromone values, where better solutions are more likely to be selected. Each solution is evaluated using the primer quality cost function. After all ants have built their solutions, pheromone values are increased for better primer pairs, while all values are slightly reduced to keep the search diverse. This process is repeated for a fixed number of iterations while tracking the best solution found. The final output is the primer pair with the minimum cost.
+Ant Colony Optimization is a method inspired by how ants find short paths using pheromone trails (Dorigo et al., 1996). In this implementation, each ant builds a candidate solution representing a primer pair $(p_1, p_2)$, where the goal is to minimize the primer quality cost function. The algorithm starts with equal pheromone values. At each iteration, ants create primer pairs by making random choices guided by these pheromone values, where better solutions are more likely to be selected. Each solution is evaluated using the primer quality cost function. After all ants have built their solutions, pheromone values are increased for better primer pairs, while all values are slightly reduced to keep the search diverse. This process is repeated for a fixed number of iterations while tracking the best solution found. The final output is the primer pair with the minimum cost.
+
+The pheromone matrix $\tau$ of shape $(2 \times L \times 4)$ is initialized uniformly to 1, and the probability of selecting each nucleotide is proportional to $\tau^{\alpha}$ with $\alpha = 1.0$. After each iteration, pheromones are evaporated by factor $(1 - \rho)$ with $\rho = 0.1$, and each of the 10 ants deposits $Q/C$ on its selected nucleotides, where $Q = 1.0$ and $C$ is the solution cost.
 
 # Results
 
@@ -188,6 +199,8 @@ Of the methods tested, the Genetic Algorithm is recommended for this problem due
 Asif, S., Khan, M., Arshad, M.W. and Shabbir, M.I., 2021. PCR optimization for beginners: A step by step guide. Research in Molecular Medicine, 9(2), pp.81–102.
 
 Chuang, L.Y., Cheng, Y.H. and Yang, C.H., 2013. Specific primer design for the polymerase chain reaction. *Biotechnology Letters*, 35(10), pp.1541–1549.
+
+Dorigo, M., Maniezzo, V. and Colorni, A., 1996. Ant system: optimization by a colony of cooperating agents. IEEE Transactions on Systems, Man, and Cybernetics, Part B, 26(1), pp.29–41.
 
 Kirkpatrick, S., Gelatt, C.D. and Vecchi, M.P., 1983. Optimization by simulated annealing. Science, 220(4598), pp.671–680.
 
