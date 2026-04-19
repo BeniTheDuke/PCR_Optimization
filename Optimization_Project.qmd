@@ -193,7 +193,7 @@ As shown in Figure 1 (Final cost line plot), the Genetic Algorithm achieved the 
 Shows average cost progression with variability across runs, indicating convergence speed and stability of each optimizer.
 :::
 
-All four algorithms were compared using the same budget of 200 steps. Under this constraint, SA required significantly less memory (4.02 KB) and time (~16s) than GA (9.51 KB, ~53s), suggesting that giving SA a proportionally larger step budget could close the accuracy gap. This is also reflected in Table 1 (Performance comparison table), which summarizes runtime, memory usage, and final cost across all algorithms.
+All four algorithms were compared using the same budget of 200 steps. Under this constraint, SA required significantly less memory (4.02 KB) and time (~1.2s) than GA (10.90 KB, ~9.5s), suggesting that giving SA a proportionally larger step budget could close the accuracy gap. This is also reflected in Table 1 (Performance comparison table), which summarizes runtime, memory usage, and final cost across all algorithms.
 
 ::: {#fig-table}
 ![](figures/result_table.png){width=60%}
