@@ -180,37 +180,49 @@ Ant Colony Optimization is a method inspired by how ants find short paths using 
 
 The pheromone matrix $\tau$ of shape $(2 \times L \times 4)$ is initialized uniformly to 1, and the probability of selecting each nucleotide is proportional to $\tau^{\alpha}$ with $\alpha = 1.0$. After each iteration, pheromones are evaporated by factor $(1 - \rho)$ with $\rho = 0.1$, and each of the 10 ants deposits $Q/C$ on its selected nucleotides, where $Q = 1.0$ and $C$ is the solution cost.
 
-# Results
+## Results and Comparison of Algorithm based on benchmark and Visualization
 
 Four optimization algorithms were evaluated, Random Search, Simulated Annealing (SA), Genetic Algorithm (GA), and Ant Colony Optimization (ACO) under two experimental settings: randomly varying problem instances and a fixed problem instance. Performance is reported in terms of mean best cost, runtime, and memory usage over 20 runs and 1200 iterations.
 
-Random:
+As shown in Figure 1 (Final cost line plot), the Genetic Algorithm achieved the lowest final cost of approximately 27, followed by Ant Colony Optimization and Random Search at around 30, while Simulated Annealing performed notably worse at approximately 60. SA's poor performance is attributable to premature convergence: the cooling rate of $\alpha=0.995$ was too aggressive for a search space of this size, causing the acceptance probability for uphill moves to decay before the algorithm could escape local minima. Adjusting to $\alpha=0.999$ and increasing the mutations per step from 1 to 4 would likely yield better results.
 
-| Method | Best Cost (mean ± std) | Runtime (s)   | Memory (MB) |
-|--------|------------------------|---------------|-------------|
-| Random | 36.97 ± 8.77           | 9.98 ± 0.27   | 0.0218      |
-| SA     | 40.87 ± 12.64          | 10.03 ± 0.26  | 0.0126      |
-| GA     | 41.34 ± 10.77          | 85.25 ± 1.80  | 0.0288      |
-| Ant    | 38.27 ± 8.92           | 152.99 ± 1.85 | 0.0264      |
+::: {#fig-convergence}
+![](figures/cost_history.png){width=60%}
 
-Fixed:
+**Figure 1:** Convergence of objective cost over iterations (mean ± std).  
+Shows average cost progression with variability across runs, indicating convergence speed and stability of each optimizer.
+:::
 
-| Method | Best Cost (mean ± std) | Runtime (s)   | Memory (MB) |
-|--------|------------------------|---------------|-------------|
-| Random | 36.11 ± 8.42           | 9.84 ± 0.37   | 0.0216      |
-| SA     | 39.19 ± 6.29           | 9.92 ± 0.18   | 0.0125      |
-| GA     | 42.08 ± 11.07          | 84.22 ± 1.59  | 0.0287      |
-| Ant    | 41.40 ± 9.55           | 172.18 ± 2.92 | 0.0275      |
+All four algorithms were compared using the same budget of 200 steps. Under this constraint, SA required significantly less memory (4.02 KB) and time (~16s) than GA (9.51 KB, ~53s), suggesting that giving SA a proportionally larger step budget could close the accuracy gap. This is also reflected in Table 1 (Performance comparison table), which summarizes runtime, memory usage, and final cost across all algorithms.
 
-## Comparison of Algorithm based on benchmark and Visualization
+::: {#fig-table}
+![](figures/result_table.png){width=60%}
+
+**Table 1:** Comparison of optimization algorithms.  
+Reports mean ± standard deviation of runtime, peak memory usage, and final cost over multiple runs for each algorithm.
+:::
+
+In terms of computational efficiency, Figure 2 (Runtime histogram) shows that SA is consistently the fastest algorithm, while GA is the most computationally expensive, with ACO and Random Search in between. Similarly.
+
+::: {#fig-runtime}
+![](figures/runtime_hist.png){width=60%}
+
+**Figure 2:** Runtime comparison across optimization algorithms over multiple runs.  
+Shows mean execution time with variability, highlighting differences in computational efficiency and stability between methods.
+:::
+
+Figure 3 (Memory usage histogram) shows SA has the lowest memory consumption, followed by Random Search, with GA and ACO requiring more resources overall.
+
+::: {#fig-memory}
+![](figures/memory_hist.png){width=60%}
+
+**Figure 3:** Memory usage distribution across optimization algorithms.  
+Shows peak memory consumption per run, allowing comparison of resource efficiency and variability between methods.
+:::
 
 ## Discussion and Conclusion
-
-All four algorithms improved substantially over random initialization, but differed in solution quality, efficiency, and robustness. The Genetic Algorithm achieved the lowest final cost of approximately 27, followed by Ant Colony Optimization and Random Search at around 30, while Simulated Annealing performed notably worse at approximately 60. SA's poor performance is attributable to premature convergence: the cooling rate of $\alpha=0.995$ was too aggressive for a search space of this size, causing the acceptance probability for uphill moves to decay before the algorithm could escape local minima. Adjusting to $\alpha=0.999$ and increasing the mutations per step from 1 to 4 would likely yield better results.
-
-All four algorithms were compared using the same budget of 1,000 steps. Under this constraint, SA required significantly less memory (12 KB) and time (\~34s) than GA (26 KB, \~302s), suggesting that giving SA a proportionally larger step budget could close the accuracy gap. Regarding robustness, GA, ACO, and Random Search produced consistent results across multiple runs with different seeds ($\pm 2$ in the final cost), while SA varied by $\pm 15$, reflecting the stochastic nature of which local minimum it became trapped in.
-
 Of the methods tested, the Genetic Algorithm is recommended for this problem due to its superior accuracy and robustness, despite higher computational cost. Its population-based search appears better suited to the mixed cost landscape, where Tm and GC terms vary smoothly but dimer terms create sharp discontinuities. Future work could extend this project by optimizing primers against a fixed template sequence, incorporating variable primer length, and more systematically tuning each algorithm's hyperparameters.
+\newpage
 
 # Appendix
 
