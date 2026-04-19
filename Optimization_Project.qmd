@@ -9,8 +9,11 @@ format:
         \usepackage{geometry}
         \usepackage{titlesec}
         \usepackage{caption}
-
-
+        \usepackage{float}
+        \setlength{\intextsep}{5pt}
+        \setlength{\floatsep}{5pt}
+        \setlength{\textfloatsep}{5pt}
+        \floatplacement{figure}{H}
         \captionsetup{labelformat=empty,font=small}
 
         \titleformat{\section}
@@ -158,15 +161,7 @@ The random search optimizer has been implemented to serve as a baseline to compa
 
 ## Genetic Algorithm Optimizer
 
-Genetic algorithm (GA) is a search technique that mimics natural selection to find optimal solutions by iteratively refining a population of candidate solutions (Mckee, 2024). In this study it is used to optimize PCR primer pairs, where each individual represents a primer pair $(p_1, p_2)$ of fixed length $L=25$ over $\{A,C,G,T\}$.
-
-The population is initialized with randomly generated primer pairs and each individual is evaluated using the defined primer cost function, where lower values indicate better solutions.
-
-At each generation, tournament selection is used to select parent primer pairs based on fitness. Selected parents are randomly paired, and single point crossover is applied to both forward and reverse primers, exchanging nucleotide segments to generate offspring.'
-
-Mutation is performed by randomly altering each nucleotide with a probability 1/ $L$ per position, following the standard heuristic proposed by Ochoa (2002), introducing diversity and enabling exploration of the search space.
-
-Elitism is implemented by replacing the worst individual in the new population with the best solution found so far, ensuring that high quality primer pairs are preserved. This process is repeated for a fixed number of generations, and the final output is the primer pair with the minimum cost.
+The Genetic Algorithm (GA) is a search technique that mimcs natural selection to find optimal solutions by iteratively refining a population of candidate solutions (McKee, 2024). Each individual represents a primer pair $p_1, p_2$ of fixed length $L=25$ over $\{A, C, G, T\}$, and is evaluated using the defined cost function. At each generation, parents are selected via tournament selection, single-point crossover exchanges nucleotide segments between paired parents, and mutation alters each nucleotide with probability $1/L$ following Ochoa (2002). Elitism preserves the best solution found so far by replacing the worst individual in each new generation. The final output is the primer pair with the minimum cost
 
 ## Simulated Annealing Optimizer
 
@@ -222,7 +217,7 @@ Shows peak memory consumption per run, allowing comparison of resource efficienc
 
 ## Discussion and Conclusion
 
-Of the methods tested, the Genetic Algorithm is recommended for this problem due to its superior accuracy and robustness, despite higher computational cost. Its population-based search appears better suited to the mixed cost landscape, where Tm and GC terms vary smoothly but dimer terms create sharp discontinuities. By contrast, SA's single-solution trajectory makes it vulnerable to premature convergence though its low resource consumption suggests it could be competitive with a larger step budget or a more gradual cooling schedule. Notably, Random Search performed comparably to ACO despite having no intelligent search mechanism, which may indicate that ACO's pheromone model requires further tuning or a larger colony size to fully exploit its construction-graph approach for this problem. Future work could extend this project by optimizing primers against a fixed template sequence, incorporating variable primer length, and more systematically tuning each algorithm's hyperparameters. \newpage
+Of the methods tested, the Genetic Algorithm is recommended for this problem due to its superior accuracy and robustness, despite higher computational cost. Its population-based search appears better suited to the mixed cost landscape, where Tm and GC terms vary smoothly, but dimer terms create sharp discontinuities. By contrast, SA's single-solution trajectory makes it vulnerable to premature convergence though its low resource consumption suggests it could be competitive with a larger step budget or a more gradual cooling schedule. Notably, Random Search performed comparably to ACO despite having no intelligent search mechanism, which may indicate that ACO's pheromone model requires a larger colony size to fully exploit its construction-graph approach. Future work could extend this project by optimizing primers against a fixed template sequence, incorporating variable primer length, and tuning each algorithm's hyperparameters. \newpage
 
 # Appendix
 
