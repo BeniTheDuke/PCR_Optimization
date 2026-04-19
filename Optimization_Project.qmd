@@ -93,14 +93,14 @@ $$
 S = \{(p_1, p_2) \mid p_1, p_2 \in \{A, C, G, T\}^{25} \}, \quad |S| = 4^{50}
 $$
 
-Exhaustive evaluation of $4^{50}$ candidate pairs is computationally infeasible, motivating the use of optimization methods. Primer design has previously been formulated as an optimization problem and tackled with genetic algorithms (Wu et al., 2007), simulated annealing (Montera and Nicoletti, 2008), and ant colony optimization (Wang et al., 2023). However, these studies each focus on a single method. This project provides a direct comparison of all three approaches alongside a random search baseline, evaluated on a fixed computational budget. We define a cost function that penalizes undesirable primer properties: deviation of melting temperature from a target of $60\,^\circ\text{C}$, melting temperature mismatch between the two primers, % of all bases represented by G or C far from 50%, long single nucleotide repeats, self complementarity within primers that may form hairpins, and 3' cross-complementary regions that may produce primer-dimers. The objective is to find the primer pair that minimizes this cost function. Four optimization algorithms (Random Search, Simulated Annealing, Genetic Algorithm, and Ant Colony Optimization) are implemented and compared with respect to solution quality, computational efficiency, and robustness. 
+Exhaustive evaluation of $4^{50}$ candidate pairs is computationally infeasible, motivating the use of optimization methods. Primer design has previously been formulated as an optimization problem and tackled with genetic algorithms (Wu et al., 2007), simulated annealing (Montera and Nicoletti, 2008), and ant colony optimization (Wang et al., 2023). However, these studies each focus on a single method. This project provides a direct comparison of all three approaches alongside a random search baseline, evaluated on a fixed computational budget. We define a cost function that penalizes undesirable primer properties. The objective is to find the primer pair that minimizes this cost function. Four optimization algorithms (Random Search, Simulated Annealing, Genetic Algorithm, and Ant Colony Optimization) are implemented and compared with respect to solution quality, computational efficiency, and robustness.
 
 # Cost Function and Parameters
 
-The application minimizes the total cost of a primer pair $(s_1, s_2)$. The cost function consists of five parts:
+The application minimizes the total cost of a primer pair $(p_1, p_2)$. The cost function consists of five parts:
 
 $$
-C(s_1,s_2)=C_T + C_{GC} + C_R + C_H + C_D
+C(p_1,p_2)=C_T + C_{GC} + C_R + C_H + C_D
 $$
 
 The five different parts, briefly explained, are:
@@ -115,12 +115,12 @@ They are calculated as such:
 
 $$
 \begin{aligned}
-C_T &= w_{Tt}\!\left[(T^*-T_m(s_1))^2 + (T^*-T_m(s_2))^2\right]
-      + w_{Tb}\!\left[T_m(s_1)-T_m(s_2)\right]^2,\\
-C_{GC} &= w_{GC}\!\left[(G^*-GC(s_1))^2 + (G^*-GC(s_2))^2\right],\\
-C_R &= w_R\!\left(\mathbf{1}[R(s_1)>r_0]\cdot R(s_1)+\mathbf{1}[R(s_2)>r_0]\cdot R(s_2)\right),\\
-C_H &= w_H\!\left(H(s_1)+H(s_2)\right),\\
-C_D &= w_D\cdot D(s_1,s_2).
+C_T &= w_{Tt}\!\left[(T^*-T_m(p_1))^2 + (T^*-T_m(p_2))^2\right]
+      + w_{Tb}\!\left[T_m(p_1)-T_m(p_2)\right]^2,\\
+C_{GC} &= w_{GC}\!\left[(G^*-GC(p_1))^2 + (G^*-GC(p_2))^2\right],\\
+C_R &= w_R\!\left(\mathbf{1}[R(p_1)>r_0]\cdot R(p_1)+\mathbf{1}[R(p_2)>r_0]\cdot R(p_2)\right),\\
+C_H &= w_H\!\left(H(p_1)+H(p_2)\right),\\
+C_D &= w_D\cdot D(p_1,p_2).
 \end{aligned}
 $$
 
@@ -128,12 +128,12 @@ with:
 
 | Symbol        | Meaning                                               |
 |---------------|-------------------------------------------------------|
-| $GC(s)$       | Calculate GC content of a sequence $s$                |
-| $T_m(s)$      | Calculate melting temperature of a sequence $s$       |
-| $R(s)$        | Get the longest repeat in a sequence $s$              |
+| $GC(p)$       | Calculate GC content of a sequence $p$                |
+| $T_m(p)$      | Calculate melting temperature of a sequence $p$       |
+| $R(p)$        | Get the longest repeat in a sequence $p$              |
 | $r_0$         | Minimum length of a repeat to affect the cost (3)     |
-| $H(s)$        | Calculate the hairpin score of sequence $s$           |
-| $D(s_1, s_2)$ | Calculate the dimer score of sequence $s_1$ and $s_2$ |
+| $H(p)$        | Calculate the hairpin score of sequence $p$           |
+| $D(p_1, p_2)$ | Calculate the dimer score of sequence $p_1$ and $p_2$ |
 | $T^*$         | Target temperature (60°C)                             |
 | $G^*$         | Target GC content (0.5)                               |
 
@@ -180,49 +180,49 @@ Ant Colony Optimization is a method inspired by how ants find short paths using 
 
 The pheromone matrix $\tau$ of shape $(2 \times L \times 4)$ is initialized uniformly to 1, and the probability of selecting each nucleotide is proportional to $\tau^{\alpha}$ with $\alpha = 1.0$. After each iteration, pheromones are evaporated by factor $(1 - \rho)$ with $\rho = 0.1$, and each of the 10 ants deposits $Q/C$ on its selected nucleotides, where $Q = 1.0$ and $C$ is the solution cost.
 
-## Results and Comparison of Algorithm based on benchmark and Visualization
+## Results and Comparison of Algorithm based on Benchmark and Visualization
 
 Four optimization algorithms were evaluated, Random Search, Simulated Annealing (SA), Genetic Algorithm (GA), and Ant Colony Optimization (ACO) under two experimental settings: randomly varying problem instances and a fixed problem instance. Performance is reported in terms of mean best cost, runtime, and memory usage over 20 runs and 200 iterations.
 
-As shown in Figure 1 (Final cost line plot), the Genetic Algorithm achieved the lowest average final cost of approximately 53, followed by Random Search and Ant Colony Optimization at 63 and 64 respectively, while Simulated Annealing performed notably worse at approximately 141. SA's poor performance is attributable to premature convergence: the cooling rate of $\alpha=0.995$ was too aggressive for a search space of this size, causing the acceptance probability for uphill moves to decay before the algorithm could escape local minima. Adjusting to $\alpha=0.999$ and increasing the mutations per step from 1 to 4 would likely yield better results.
+As shown in Figure 1 (Final cost line plot), the Genetic Algorithm achieved the lowest average final cost of approximately 53, followed by Random Search and Ant Colony Optimization at 63 and 64 respectively, while Simulated Annealing performed notably worse at approximately 141. SA's poor performance is attributable to premature convergence: the cooling rate of $\alpha=0.995$ was too aggressive for a search space of this size, causing the acceptance probability for uphill moves to decay before the algorithm could escape local minima. Adjusting to $\alpha=0.999$ and increasing the mutations per step from 1 to 4 would likely yield better results. Regarding robustness, GA, ACO, and Random Search produced consistent results across multiple runs with different seeds, while SA varies much more, reflecting the stochastic nature of which local minimum it became trapped in.
 
 ::: {#fig-convergence}
-![](figures/cost_history.png){width=60%}
+![](figures/cost_history.png){width="60%"}
 
-**Figure 1:** Convergence of objective cost over iterations (mean ± std).  
+**Figure 1:** Convergence of objective cost over iterations (mean ± std).\
 Shows average cost progression with variability across runs, indicating convergence speed and stability of each optimizer.
 :::
 
-All four algorithms were compared using the same budget of 200 steps. Under this constraint, SA required significantly less memory (4.02 KB) and time (~1.2s) than GA (10.90 KB, ~9.5s), suggesting that giving SA a proportionally larger step budget could close the accuracy gap. This is also reflected in Table 1 (Performance comparison table), which summarizes runtime, memory usage, and final cost across all algorithms.
+All four algorithms were compared using the same budget of 200 steps. Under this constraint, SA required significantly less memory (4.02 KB) and time (\~1.1s) than GA (10.90 KB, \~9.5s), suggesting that giving SA a proportionally larger step budget could close the accuracy gap. This is also reflected in Table 1 (Performance comparison table), which summarizes runtime, memory usage, and final cost across all algorithms.
 
 ::: {#fig-table}
-![](figures/result_table.png){width=60%}
+![](figures/result_table.png){width="60%"}
 
-**Table 1:** Comparison of optimization algorithms.  
+**Table 1:** Comparison of optimization algorithms.\
 Reports mean ± standard deviation of runtime, peak memory usage, and final cost over multiple runs for each algorithm.
 :::
 
 In terms of computational efficiency, Figure 2 (Runtime histogram) shows that SA is consistently the fastest algorithm, while GA is the most computationally expensive, with ACO and Random Search in between. Similarly.
 
 ::: {#fig-runtime}
-![](figures/runtime_hist.png){width=60%}
+![](figures/runtime_hist.png){width="60%"}
 
-**Figure 2:** Runtime comparison across optimization algorithms over multiple runs.  
+**Figure 2:** Runtime comparison across optimization algorithms over multiple runs.\
 Shows mean execution time with variability, highlighting differences in computational efficiency and stability between methods.
 :::
 
 Figure 3 (Memory usage histogram) shows SA has the lowest memory consumption, followed by Random Search, with GA and ACO requiring more resources overall.
 
 ::: {#fig-memory}
-![](figures/memory_hist.png){width=60%}
+![](figures/memory_hist.png){width="60%"}
 
-**Figure 3:** Memory usage distribution across optimization algorithms.  
+**Figure 3:** Memory usage distribution across optimization algorithms.\
 Shows peak memory consumption per run, allowing comparison of resource efficiency and variability between methods.
 :::
 
 ## Discussion and Conclusion
-Of the methods tested, the Genetic Algorithm is recommended for this problem due to its superior accuracy and robustness, despite higher computational cost. Its population-based search appears better suited to the mixed cost landscape, where Tm and GC terms vary smoothly but dimer terms create sharp discontinuities. Future work could extend this project by optimizing primers against a fixed template sequence, incorporating variable primer length, and more systematically tuning each algorithm's hyperparameters.
-\newpage
+
+Of the methods tested, the Genetic Algorithm is recommended for this problem due to its superior accuracy and robustness, despite higher computational cost. Its population-based search appears better suited to the mixed cost landscape, where Tm and GC terms vary smoothly but dimer terms create sharp discontinuities. By contrast, SA's single-solution trajectory makes it vulnerable to premature convergence though its low resource consumption suggests it could be competitive with a larger step budget or a more gradual cooling schedule. Notably, Random Search performed comparably to ACO despite having no intelligent search mechanism, which may indicate that ACO's pheromone model requires further tuning or a larger colony size to fully exploit its construction-graph approach for this problem. Future work could extend this project by optimizing primers against a fixed template sequence, incorporating variable primer length, and more systematically tuning each algorithm's hyperparameters. \newpage
 
 # Appendix
 
@@ -241,6 +241,8 @@ McKee, A., 2024. *Genetic algorithm: Complete guide with Python implementation*.
 Montera, L.C. and Nicoletti, M.C., 2008. A customized simulated annealing suitable for primer design in polymerase chain reaction processes. In: Bentley, P.J., Lee, D. and Jung, S. (eds.) Computational Intelligence in Biomedicine and Bioinformatics. Berlin: Springer, pp.221–241.
 
 Ochoa, G., 2002. *Setting the mutation rate: Scope and limitations of the 1/L heuristic*. In: *Proceedings of the Genetic and Evolutionary Computation Conference (GECCO 2002)*. San Francisco: Morgan Kaufmann, pp.315–322.
+
+Wang, X., Ning, J., Jiang, Y., Liu, R., Zhang, X. and Wu, J., 2023. A degenerate primer design method based on ant colony optimization. Discrete Dynamics in Nature and Society, 2023, pp.1–10.
 
 Wu, L.C., Horng, J.T., Huang, H.Y., Chiang, Y.H., Huang, H.D. and Yang, C.H., 2007. Primer design for multiplex PCR using a genetic algorithm. Soft Computing, 11(9), pp.855–863.
 
