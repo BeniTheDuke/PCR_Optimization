@@ -27,7 +27,9 @@ format:
 editor: visual
 ---
 
-<!-- LTeX: enabled=false --> <!-- prettier-ignore-start -->
+<!-- LTeX: enabled=false -->
+
+<!-- prettier-ignore-start -->
 
 \thispagestyle{empty}  
 \vspace*{\fill}  
@@ -91,7 +93,7 @@ $$
 S = \{(p_1, p_2) \mid p_1, p_2 \in \{A, C, G, T\}^{25} \}, \quad |S| = 4^{50}
 $$
 
-Exhaustive evaluation of $4^{50}$ candidate pairs is computationally infeasible, motivating the use of optimization methods. Primer design has previously been formulated as an optimization problem and tackled with genetic algorithms (Wu et al., 2007) and simulated annealing (Montera and Nicoletti, 2008). This project extends the comparison to include Ant Colony Optimization and evaluates all methods on a fixed computational budget. We define a cost function that penalizes undesirable primer properties: deviation of melting temperature from a target of $60\,^\circ\text{C}$, melting temperature mismatch between the two primers, % of all bases represented by G or C far from 50%, long single nucleotide repeats, self complementarity within primers that may form hairpins, and 3' cross-complementary regions that may produce primer-dimers. The objective is to find the primer pair that minimizes this cost function. Four optimization algorithms (Random Search, Simulated Annealing, Genetic Algorithm, and Ant Colony Optimization) are implemented and compared with respect to solution quality, computational efficiency, and robustness.
+Exhaustive evaluation of $4^{50}$ candidate pairs is computationally infeasible, motivating the use of optimization methods. Primer design has previously been formulated as an optimization problem and tackled with genetic algorithms (Wu et al., 2007), simulated annealing (Montera and Nicoletti, 2008), and ant colony optimization (Wang et al., 2023). However, these studies each focus on a single method. This project provides a direct comparison of all three approaches alongside a random search baseline, evaluated on a fixed computational budget. We define a cost function that penalizes undesirable primer properties: deviation of melting temperature from a target of $60\,^\circ\text{C}$, melting temperature mismatch between the two primers, % of all bases represented by G or C far from 50%, long single nucleotide repeats, self complementarity within primers that may form hairpins, and 3' cross-complementary regions that may produce primer-dimers. The objective is to find the primer pair that minimizes this cost function. Four optimization algorithms (Random Search, Simulated Annealing, Genetic Algorithm, and Ant Colony Optimization) are implemented and compared with respect to solution quality, computational efficiency, and rob
 
 # Cost Function and Parameters
 
@@ -179,6 +181,7 @@ Ant Colony Optimization is a method inspired by how ants find short paths using 
 The pheromone matrix $\tau$ of shape $(2 \times L \times 4)$ is initialized uniformly to 1, and the probability of selecting each nucleotide is proportional to $\tau^{\alpha}$ with $\alpha = 1.0$. After each iteration, pheromones are evaporated by factor $(1 - \rho)$ with $\rho = 0.1$, and each of the 10 ants deposits $Q/C$ on its selected nucleotides, where $Q = 1.0$ and $C$ is the solution cost.
 
 # Results
+
 Four optimization algorithms were evaluated, Random Search, Simulated Annealing (SA), Genetic Algorithm (GA), and Ant Colony Optimization (ACO) under two experimental settings: randomly varying problem instances and a fixed problem instance. Performance is reported in terms of mean best cost, runtime, and memory usage over 20 runs and 1200 iterations.
 
 Random:
@@ -200,7 +203,6 @@ Fixed:
 | Ant    | 41.40 ± 9.55           | 172.18 ± 2.92 | 0.0275      |
 
 ## Comparison of Algorithm based on benchmark and Visualization
-
 
 ## Discussion and Conclusion
 
